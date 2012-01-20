@@ -5,7 +5,7 @@ var myobj = new IdeosLineChart(mysettings);
 
 Here is a detailed settings object literal that can be passed in...
 
-'''javascript
+```javascript
 
 {
     container: 'linechart',     // the id of a canvas element on the page
@@ -53,4 +53,4 @@ Here is a detailed settings object literal that can be passed in...
     ]
 }
 
-'''
+```

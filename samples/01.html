@@ -1,0 +1,78 @@
+<html>
+<head>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://c9.io/readonlychild/ideos_canvas/workspace/ideos.canvas.js"></script>
+    <script type="text/javascript" src="http://c9.io/readonlychild/ideos_canvas/workspace/ideos.canvas.linechart.js"></script>
+</head>
+<body>
+
+    <canvas id="linechart" width="500" height="250"></canvas>
+    <br/>
+    <span id="hover-info"></span>
+    <br/>
+    <span id="click-info"></span>
+
+    <script type="text/javascript">
+        
+        $(document).ready(function () {
+            
+        });
+        
+        var dataPoints = [];
+        dataPoints.push({
+            label: "Jan",
+            value: 20,
+            tooltip: "January",
+            markerSize: 4
+        });
+        dataPoints.push({
+            label: "Feb",
+            value: 30,
+            tooltip: "February",
+            markerSize: 4
+        });
+        dataPoints.push({
+            label: "Mar",
+            value: 50,
+            tooltip: "March",
+            markerSize: 4
+        });
+        dataPoints.push({
+            label: "Apr",
+            value: 66,
+            tooltip: "April",
+            markerSize: 4,
+            markerColor:"#ffa",
+            markerStrokeColor:"#f72",
+            markerStrokeWidth:2,
+            lineColor: "#070",
+            lineWidth: 5
+        });
+        dataPoints.push({
+            label: "May",
+            value: 87,
+            tooltip: "May",
+            markerSize: 4
+        });
+        dataPoints.push({
+            label: "Jun",
+            value: 115,
+            tooltip: "June",
+            markerSize: 4
+        });
+        
+        var mychart = new IdeosLineChart({ container: "linechart", datapoints: dataPoints, maxValueGap: 5 });
+        mychart.settings.yRegions.push({ color:"rgba(255,200,200,0.6)", from:40, to:60 });
+        mychart.settings.yRegions.push({ color:"rgba(255,255,200,0.3)", from:60, to:80 });
+        mychart.settings.yRegions.push({ color:"rgba(200,255,200,0.6)", from:80, to:100 });
+        mychart.settings.hover = function (datapoint) {
+            $("#hover-info").html('hovering over ' + datapoint.label + ": <b>" + datapoint.value + "</b>");
+        };
+        mychart.settings.click = function (datapoint) {
+            $("#click-info").html('last clicked on ' + datapoint.label + ": <b>" + datapoint.value + "</b>");
+        };
+        mychart.render();
+        
+    </script>
+</body>
+</html>

@@ -54,3 +54,10 @@ Here is a detailed settings object literal that can be passed in...
 }
 
 ```
+
+# IdeosBarChart object
+
+you instantiate the object by a 
+var myobj = new IdeosBarChart(mysettings);
+
+the settings object literal is basically the same as above...

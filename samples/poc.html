@@ -27,22 +27,18 @@
         });
         dataPoints.push({
             label: "Feb",
-            value: 30,
+            value: 0,
             tooltip: "February",
-            markerSize: 4
         });
         dataPoints.push({
             label: "Mar",
             value: 50,
             tooltip: "March",
-            markerSize: 4
         });
         dataPoints.push({
             label: "Apr",
             value: 66,
             tooltip: "April",
-            markerSize: 4,
-            markerColor:"#ffa",
             borderStrokeColor:"#f72",
             borderStrokeWidth:2,
             color: "#6b6",
@@ -52,7 +48,8 @@
             label: "May",
             value: 87,
             tooltip: "May",
-            markerSize: 4
+            markerSize: 4,
+            color:"#f72"
         });
         dataPoints.push({
             label: "Jun",
@@ -60,23 +57,67 @@
             tooltip: "June",
             markerSize: 4
         });
+        dataPoints.push({
+            label: "Jul",
+            value: 30,
+            tooltip: "February",
+            markerSize: 4
+        });
+        dataPoints.push({
+            label: "Aug",
+            value: 50,
+            tooltip: "March",
+            markerSize: 4
+        });
+        dataPoints.push({
+            label: "Sep",
+            value: 66,
+            tooltip: "April",
+            markerSize: 4,
+            color: "#6b6",
+            lineWidth: 5
+        });
+        dataPoints.push({
+            label: "Oct",
+            value: 115,
+            tooltip: "June",
+            markerSize: 4
+        });
+        dataPoints.push({
+            label: "Nov",
+            value: -21,
+            tooltip: "February",
+            markerSize: 7,
+            borderStrokeColor:"#ff4",
+            borderStrokeWidth: 2,
+            color:"#569"
+        });
+        dataPoints.push({
+            label: "Dec",
+            value: 50,
+            tooltip: "March",
+            markerSize: 4
+        });
         
         $(document).ready(function () {
             
         });
         
+        var displaceY = -30;
+        var maxgap = 14;
         
-        
-        var mychart = new IdeosBarChart({ container: "barchart", maxValueGap: 5, datapoints: dataPoints });
+        var mychart = new IdeosBarChart({ container: "barchart", maxValueGap: maxgap, datapoints: dataPoints, displaceYOriginTo: displaceY });
         mychart.settings.hover = function (datapoint) {
             $("#hover-info").html('hovering over ' + datapoint.label + ": <b>" + datapoint.value + "</b>");
         };
         mychart.settings.click = function (datapoint) {
             $("#click-info").html('last clicked on ' + datapoint.label + ": <b>" + datapoint.value + "</b>");
         };
+        mychart.settings.chartArea.gridLines.yCount = 15;
         mychart.render();
         
-        var mychart2 = new IdeosLineChart({ container: "linechart", maxValueGap: 5, datapoints: dataPoints });
+        var mychart2 = new IdeosLineChart({ container: "linechart", maxValueGap: maxgap, datapoints: dataPoints, displaceYOriginTo: displaceY });
+        mychart2.settings.chartArea.gridLines.yCount = 15;
         mychart2.render();
         
     </script>

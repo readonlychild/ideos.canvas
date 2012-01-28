@@ -168,6 +168,47 @@ IdeosChart.prototype.drawYRegions = function (c) {
     }
 };
 
+IdeosChart.prototype.lightenDarkenColor = function (clr, amt) {
+    var usePound = false;
+    var color = clr;
+    if ( color[0] == "#" ) {
+        color = color.slice(1);
+        usePound = true;
+    }
+
+    if (color.length == 3) {
+        color = color[0] + color[0] + color[1] + color[1] + color[2] + color[2];
+    }
+
+    var num = parseInt(color,16);
+
+    var r = (num >> 16) + amt;
+
+    if ( r > 255 ) r = 255;
+    else if  (r < 0) r = 0;
+
+    var g = ((num >> 8) & 0x00FF) + amt;
+
+    if ( g > 255 ) g = 255;
+    else if  (g < 0) g = 0;
+
+    var b = (num & 0x0000FF) + amt;
+
+    if ( b > 255 ) b = 255;
+    else if  ( b < 0 ) b = 0;
+
+    var rStr = (r.toString(16).length < 2)?'0'+r.toString(16):r.toString(16);
+    var gStr = (g.toString(16).length < 2)?'0'+g.toString(16):g.toString(16);
+    var bStr = (b.toString(16).length < 2)?'0'+b.toString(16):b.toString(16);
+
+    return (usePound?"#":"") + rStr + gStr + bStr;
+};
+IdeosChart.prototype.lightenColor = function (color, amt) {
+    return this.lightenDarkenColor(color, amt);
+};
+IdeosChart.prototype.darkenColor = function (color, amt) {
+    return this.lightenDarkenColor(color, amt * -1);
+};
 
 
 //-- these need to be overriden

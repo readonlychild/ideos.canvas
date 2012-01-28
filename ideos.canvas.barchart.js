@@ -137,52 +137,54 @@ function IdeosBarChart(settings) {
 	};
 
 	this.drawBars = function (c) {
-		//var prevX = 0;
-		//var prevY = 0;		
-		//c.moveTo(this.settings.datapoints[0].xCenter, this.settings.datapoints[0].yCenter);
-		//prevX = this.settings.datapoints[0].xCenter;
-		//prevY = this.settings.datapoints[0].yCenter;
-		
+
 		for (var i = 0, z = this.settings.datapoints.length; i < z; i++) {
 			var dp = this.settings.datapoints[i];
 			
-			c.strokeStyle = dp.borderStrokeColor || "#000";
-			c.lineWidth = dp.borderStrokeWidth || 1;
-			c.shadowColor = "rgba(0,0,0,.5)";
-			c.shadowBlur = 10;
-			c.shadowOffsetX = 4;
-			c.shadowOffsetY = 4;
+            if (dp.value != 0) {
+    			c.strokeStyle = dp.borderStrokeColor || "#000";
+	    		c.lineWidth = dp.borderStrokeWidth || 1;
+		    	c.shadowColor = "rgba(0,0,0,.5)";
+			    c.shadowBlur = 10;
+			    c.shadowOffsetX = 4;
+    			c.shadowOffsetY = 4;
             
-            var barMargin = this._distanceBetweenPoints*0.92;
+                var barMargin = this._distanceBetweenPoints*0.92;
             
-            c.fillStyle = dp.color || "#abd";
-            c.fillRect(
-                dp.xCenter - this._distanceBetweenPoints/2 + barMargin,
-                this.settings.height - this.settings.marginBottom,
-                this._distanceBetweenPoints - barMargin*2,
-                (this._chartAreaHeight - dp.yCenter) * -1
-            );
-            if (dp.borderStrokeColor) {
-                c.shadowBlur = 0;
-                c.shadowOffsetX = 0;
-			    c.shadowOffsetY = 0;
-                c.strokeRect(
+                c.fillStyle = dp.color || "#abd";
+            
+                //gradienting...
+                var lgrad = c.createLinearGradient(
                     dp.xCenter - this._distanceBetweenPoints/2 + barMargin,
-                    this.settings.height - this.settings.marginBottom,
-                    this._distanceBetweenPoints - barMargin*2,
-                    (this._chartAreaHeight - dp.yCenter) * -1    
+                    0,
+                    dp.xCenter + this._distanceBetweenPoints/2 - barMargin,
+                    0
                 );
-            }
+                var dpclr = dp.color || "#abd";
+                lgrad.addColorStop(1, this.lightenColor(dpclr, 33));
+                lgrad.addColorStop(0.51, dpclr);
+                lgrad.addColorStop(0.5, this.darkenColor(dpclr, 22));
+                lgrad.addColorStop(0, dpclr);
+                c.fillStyle = lgrad;
             
-			//c.beginPath();
-			
-			//c.moveTo(prevX, prevY);
-			//c.lineTo(dp.xCenter, dp.yCenter);
-			//c.closePath();
-			//c.stroke();
-			
-			//prevX = dp.xCenter;
-			//prevY = dp.yCenter;
+                c.fillRect(
+                    dp.xCenter - this._distanceBetweenPoints/2 + barMargin,
+                    this.settings.height - this.settings.marginBottom + this.settings.displaceYOriginTo * this._valueFactor,
+                    this._distanceBetweenPoints - barMargin*2,
+                    (this._chartAreaHeight - dp.yCenter + this.settings.displaceYOriginTo) * -1
+                );
+                if (dp.borderStrokeColor) {
+                    c.shadowBlur = 0;
+                    c.shadowOffsetX = 0;
+			        c.shadowOffsetY = 0;
+                    c.strokeRect(
+                        dp.xCenter - this._distanceBetweenPoints/2 + barMargin,
+                        this.settings.height - this.settings.marginBottom + this.settings.displaceYOriginTo * this._valueFactor,
+                        this._distanceBetweenPoints - barMargin*2,
+                        (this._chartAreaHeight - dp.yCenter + this.settings.displaceYOriginTo) * -1
+                    );
+                }
+            }
 		}
 		
 	};

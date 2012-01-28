@@ -9,7 +9,7 @@ Here is a detailed settings object literal that can be passed in...
 
 {
     container: 'linechart',     // the id of a canvas element on the page
-	marginTop: 10,              // margins around what will be called the 'chartArea'
+    marginTop: 10,              // margins around what will be called the 'chartArea'
 	marginRight: 10,
 	marginBottom: 20,
 	marginLeft: 30,
@@ -24,9 +24,9 @@ Here is a detailed settings object literal that can be passed in...
             tooltip: "April",
             markerSize: 4,
             markerColor:"#ffa",
-            markerStrokeColor:"#f72",
-            markerStrokeWidth:2,
-            lineColor: "#070",
+            borderStrokeColor:"#f72",
+            borderStrokeWidth:2,
+            color: "#070",
             lineWidth: 5
 		},
 		...

@@ -3,21 +3,20 @@
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="../ideos.canvas.js"></script>
     <script type="text/javascript" src="../ideos.canvas.chart.js"></script>
+    <script type="text/javascript" src="../ideos.canvas.barchart.js"></script>
     <script type="text/javascript" src="../ideos.canvas.linechart.js"></script>
 </head>
 <body>
 
-    <canvas id="linechart" width="500" height="250"></canvas>
+    <canvas id="barchart" width="500" height="250"></canvas>
     <br/>
     <span id="hover-info"></span>
     <br/>
     <span id="click-info"></span>
+    <br/>
+    <canvas id="linechart" width="500" height="250"></canvas>
 
     <script type="text/javascript">
-        
-        $(document).ready(function () {
-            
-        });
         
         var dataPoints = [];
         dataPoints.push({
@@ -44,9 +43,9 @@
             tooltip: "April",
             markerSize: 4,
             markerColor:"#ffa",
-            markerStrokeColor:"#f72",
-            markerStrokeWidth:2,
-            lineColor: "#070",
+            borderStrokeColor:"#f72",
+            borderStrokeWidth:2,
+            color: "#6b6",
             lineWidth: 5
         });
         dataPoints.push({
@@ -62,10 +61,13 @@
             markerSize: 4
         });
         
-        var mychart = new IdeosLineChart({ container: "linechart", datapoints: dataPoints, maxValueGap: 5 });
-        mychart.settings.yRegions.push({ color:"rgba(255,200,200,0.6)", from:40, to:60 });
-        mychart.settings.yRegions.push({ color:"rgba(255,255,200,0.3)", from:60, to:80 });
-        mychart.settings.yRegions.push({ color:"rgba(200,255,200,0.6)", from:80, to:100 });
+        $(document).ready(function () {
+            
+        });
+        
+        
+        
+        var mychart = new IdeosBarChart({ container: "barchart", maxValueGap: 5, datapoints: dataPoints });
         mychart.settings.hover = function (datapoint) {
             $("#hover-info").html('hovering over ' + datapoint.label + ": <b>" + datapoint.value + "</b>");
         };
@@ -73,6 +75,9 @@
             $("#click-info").html('last clicked on ' + datapoint.label + ": <b>" + datapoint.value + "</b>");
         };
         mychart.render();
+        
+        var mychart2 = new IdeosLineChart({ container: "linechart", maxValueGap: 5, datapoints: dataPoints });
+        mychart2.render();
         
     </script>
 </body>

@@ -2,7 +2,7 @@ if (typeof CanvasRenderingContext2D !== 'undefined') {
 
     CanvasRenderingContext2D.prototype.roundRect = 
 
-		function(x, y, width, height, radius, fill, stroke) {
+    	function(x, y, width, height, radius, fill, stroke) {
 		  if (typeof stroke == "undefined" ) {
 		    stroke = true;
 		  }

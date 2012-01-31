@@ -46,7 +46,7 @@
         });
         dataPoints.push({
             label: "May",
-            value: 87,
+            value: 100,
             tooltip: "May",
             markerSize: 4,
             color:"#f72"
@@ -60,19 +60,19 @@
         dataPoints.push({
             label: "Jul",
             value: 30,
-            tooltip: "February",
+            tooltip: "July",
             markerSize: 4
         });
         dataPoints.push({
             label: "Aug",
             value: 50,
-            tooltip: "March",
+            tooltip: "August",
             markerSize: 4
         });
         dataPoints.push({
             label: "Sep",
             value: 66,
-            tooltip: "April",
+            tooltip: "September",
             markerSize: 4,
             color: "#6b6",
             lineWidth: 5
@@ -80,13 +80,13 @@
         dataPoints.push({
             label: "Oct",
             value: 115,
-            tooltip: "June",
+            tooltip: "October",
             markerSize: 4
         });
         dataPoints.push({
             label: "Nov",
             value: -21,
-            tooltip: "February",
+            tooltip: "November",
             markerSize: 7,
             borderStrokeColor:"#ff4",
             borderStrokeWidth: 2,
@@ -95,7 +95,7 @@
         dataPoints.push({
             label: "Dec",
             value: 50,
-            tooltip: "March",
+            tooltip: "December",
             markerSize: 4
         });
         
@@ -114,10 +114,13 @@
             $("#click-info").html('last clicked on ' + datapoint.label + ": <b>" + datapoint.value + "</b>");
         };
         mychart.settings.chartArea.gridLines.yCount = 15;
+        mychart.settings.chartArea.gridLines.useIncrements = true;
+        mychart.settings.chartArea.gridLines.gap = 10;
         mychart.render();
         
         var mychart2 = new IdeosLineChart({ container: "linechart", maxValueGap: maxgap, datapoints: dataPoints, displaceYOriginTo: displaceY });
-        mychart2.settings.chartArea.gridLines.yCount = 15;
+        mychart2.settings.chartArea.gridLines.useIncrements = true;
+        mychart2.settings.chartArea.gridLines.gap = 10;
         mychart2.render();
         
     </script>

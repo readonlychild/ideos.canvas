@@ -106,7 +106,67 @@ IdeosChart.prototype.drawLabels = function (c) {    // c = a canvas 2d context
 
 IdeosChart.prototype.drawAxisLines = function (c) { // c = a canvas 2d context
 
+    if (!this.settings.chartArea.gridLines.useIncrements) {
+        this.drawAxisLinesV1(c);
+        return;
+    }
+    var inc = this.settings.chartArea.gridLines.gap || 20;
+
 	c.fillStyle = this.settings.chartArea.fillStyle;
+	c.roundRect(this.settings.marginLeft, this.settings.marginTop, this._chartAreaWidth, this._chartAreaHeight, 5, true, true);
+		
+	// draw horizontal grid lines
+	c.strokeStyle = this.settings.chartArea.gridLines.lineColor;
+	c.lineWidth = this.settings.chartArea.gridLines.lineWidth;
+    
+    var weirdYValCompensation = 0;
+    
+	var curVal = 0;
+    while (curVal + inc < this._maxValue) {
+        c.strokeStyle = this.settings.chartArea.gridLines.lineColor;
+        c.beginPath();
+        var ypos = this._chartAreaHeight - (curVal - this.settings.displaceYOriginTo) * this._valueFactor + this.settings.marginTop + weirdYValCompensation;
+		c.moveTo(this.settings.marginLeft, ypos);
+		c.lineTo(this.settings.width - this.settings.marginRight, ypos);
+		c.stroke();
+        if (this.settings.chartArea.gridLines.showValues) {
+            c.strokeStyle = "#555";
+			c.fillStyle = "#555";
+			//var lbl = Math.round(this._maxValue - this._minValue - curVal / this._valueFactor + this.settings.displaceYOriginTo).toString();
+            var lbl = Math.round(curVal).toString();
+			var xcoord = this.settings.marginLeft - c.measureText(lbl).width - 5;
+			//console.log(c.measureText(lbl));
+			c.fillText(lbl, xcoord, ypos + 3);
+		}
+		c.closePath();
+        curVal += inc;
+    }
+    curVal = 0;
+    while (curVal - inc > this._minValue) {
+        curVal -= inc;
+        c.strokeStyle = this.settings.chartArea.gridLines.lineColor;
+        c.beginPath();
+        var ypos2 = this._chartAreaHeight - (curVal - this.settings.displaceYOriginTo) * this._valueFactor + this.settings.marginTop + weirdYValCompensation;
+		c.moveTo(this.settings.marginLeft, ypos2);
+		c.lineTo(this.settings.width - this.settings.marginRight, ypos2);
+		c.stroke();
+        if (this.settings.chartArea.gridLines.showValues) {
+            c.strokeStyle = "#555";
+			c.fillStyle = "#555";
+			var lbl2 = Math.round(curVal).toString();
+			var xcoord2 = this.settings.marginLeft - c.measureText(lbl2).width - 5;
+			//console.log(c.measureText(lbl));
+			c.fillText(lbl2, xcoord2, ypos2 + 3);
+		}
+		c.closePath();
+    }
+    
+	
+};
+
+IdeosChart.prototype.drawAxisLinesV1 = function (c) { // c = a canvas 2d context
+
+    c.fillStyle = this.settings.chartArea.fillStyle;
 	c.roundRect(this.settings.marginLeft, this.settings.marginTop, this._chartAreaWidth, this._chartAreaHeight, 5, true, true);
 		
 	// draw horizontal grid lines
@@ -168,6 +228,108 @@ IdeosChart.prototype.drawYRegions = function (c) {
     }
 };
 
+IdeosChart.prototype.preRender = function (container) {
+    if (container) this.settings.container = container;
+	
+	var canv = $("#" + this.settings.container);
+	this.settings.width = canv.width();
+	this.settings.height = canv.height();
+	
+	var c = canv[0].getContext('2d');
+	
+	this.getMaxValue();
+	this.getMinValue();
+	this.getChartAreaWidth();
+	this.getChartAreaHeight();
+	this.getDistanceBetweenPoints();
+	this.getValueFactor();
+	
+	console.log('yaxis limits:', this._minValue, this._maxValue, this._valueFactor);
+	
+	for ( var i = 0, z = this.settings.datapoints.length; i < z; i++) {
+		var dp = this.settings.datapoints[i];
+		dp.xCenter = this._distanceBetweenPoints * i + this.settings.marginLeft + this._distanceBetweenPoints/2;
+		dp.yCenter = this._chartAreaHeight - (dp.value - this.settings.displaceYOriginTo) * this._valueFactor + this.settings.marginTop;
+		dp.hotArea = {};
+		dp.hotArea.x1 = this.settings.marginLeft + this._distanceBetweenPoints * i;
+		dp.hotArea.y1 = this.settings.marginTop  + 0;
+		dp.hotArea.x2 = dp.hotArea.x1 + this._distanceBetweenPoints;
+		dp.hotArea.y2 = this.height - this.settings.marginBottom;
+		//console.log(dp.label, dp.hotArea.x1, dp.hotArea.x2);
+	}
+    
+    return c;
+};
+
+IdeosChart.prototype.includeTooltipLayer = function (c) {
+    //add a layer for tooltip
+	$("#" + this.settings.container).before("<canvas id='" + this.settings.container + "-tt' width='" + this.settings.width + "' height='" + this.settings.height + "' style='position:absolute;' ></canvas>");
+	this.ttPaper = $("#" + this.settings.container + "-tt")[0].getContext('2d');
+	
+	$("#" + this.settings.container + "-tt").bind("mousemove", { context: this.ttPaper, chart: this }, function (e) {
+		var $this = $(this);
+		var ux = e.pageX - $this.offset().left;
+		var uy = e.pageY - $this.offset().top;
+		//console.log(ux, uy);
+		e.data.context.clearRect(0,0,this.width, this.height);
+		e.data.context.strokeStyle = "rgba(0,0,0,.5)";
+		e.data.context.fillStyle = "rgba(222,222,222,.5)";
+		//e.data.context.fillText(ux + ", " + uy, 100, 100);
+		var dp = e.data.chart.getDatapointAt(ux, uy);
+		if (dp) {
+            if (e.data.chart.settings.hotSpotHover) {
+                e.data.chart.settings.hotSpotHover(dp, e.data.context);
+            }
+            
+			//console.log(dp.label);
+            e.data.context.strokeStyle = "rgba(0,0,0,.5)";
+            e.data.context.fillStyle = "rgba(222,222,222,.5)";
+			var xoffset = -10;
+			var yoffset = -40;
+			var xpadd = 12;
+			var ypos = uy + yoffset;
+			if (ypos < 0) ypos = 4;
+			var v = dp.value.toString();
+			if (dp.tooltip) v = dp.tooltip + " " + v;
+			var vw = e.data.context.measureText(v).width;
+			xoffset = vw/2 * -1;
+			if (ux + xoffset + vw + xpadd >= this.width) xoffset = this.width - ux - vw - xpadd - 4;
+			//console.log(xoffset);
+			e.data.context.roundRect(ux + xoffset, ypos, vw + xpadd, 21, 4, true, true);
+			e.data.context.fillStyle = "#000";
+			e.data.context.textAlign = "center";
+			e.data.context.fillText(v, ux + xoffset + vw/2 + xpadd/2, ypos + 13);
+			if (e.data.chart.settings.hover) {
+                e.data.chart.settings.hover(dp);
+			}
+		}
+	});
+    
+    $("#" + this.settings.container + "-tt").bind("click", { context: this.ttPaper, chart: this }, function (e) {
+        var $this = $(this);
+        var ux = e.pageX - $this.offset().left;
+		var uy = e.pageY - $this.offset().top;
+        var dp = e.data.chart.getDatapointAt(ux, uy);
+        //console.log('click on ', dp.label, dp.value);
+        if (dp) {
+            if (e.data.chart.settings.click) {
+                e.data.chart.settings.click(dp);
+            }
+        }
+    });
+};
+
+IdeosChart.prototype.getDatapointAt = function (x, y) {
+	for (var i = 0, z = this.settings.datapoints.length; i < z; i++) {
+		var dp = this.settings.datapoints[i];
+		if (dp.hotArea.x1 < x && dp.hotArea.x2 > x) {
+			return dp;
+			//break;
+		}
+	}
+	return null;
+};
+
 IdeosChart.prototype.lightenDarkenColor = function (clr, amt) {
     var usePound = false;
     var color = clr;
@@ -216,5 +378,6 @@ IdeosChart.prototype.darkenColor = function (color, amt) {
 IdeosChart.prototype.render = function(container) {
     
 };
+
 
 

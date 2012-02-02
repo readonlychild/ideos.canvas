@@ -7,31 +7,31 @@ function IdeosChart(settings) {
 		marginRight: 10,
 		marginBottom: 20,
 		marginLeft: 30,
+        multiSeries: true,
 		datapoints: [
+          [    
 			{
 				label: "Jan",
-				value: 12
+				value: 1
 			},
 			{
 				label: "Feb",
-				value: 28
+				value: 2
 			},
 			{
 				label: "Mar",
-				value: 18
+				value: 3
 			},
-			{
-				label: "Apr",
-				value: 34
-			},
-			{
-				label: "May",
-				value: 40
-			},
-			{
-				label: "Jun",
-				value: 32
-			}
+			{ label: "Apr", value: 4 },
+			{ label: "May", value: 5 },
+			{ label: "Jun", value: 6 },
+            { label: "Jul", value: 7 },
+            { label: "Aug", value: 8 },
+            { label: "Sep", value: 9 },
+            { label: "Oct", value: 10 },
+            { label: "Nov", value: 11 },
+            { label: "Dec", value: 12 }
+          ]
 		],
 		chartArea: {
 			strokeWidth: 1,
@@ -60,17 +60,33 @@ function IdeosChart(settings) {
 
 IdeosChart.prototype.getMaxValue = function () {
 	var mx = -99999;
-	for(var i = 0, z = this.settings.datapoints.length; i < z; i++) {
-		if (this.settings.datapoints[i].value - this.settings.displaceYOriginTo > mx) mx = this.settings.datapoints[i].value;
-	}
+    //if (this.settings.multiSeries) {
+        for(var i = 0, z = this.settings.datapoints.length; i < z; i++) {
+            for (var k = 0, kk = this.settings.datapoints[i].length; k < kk; k++) {
+                if (this.settings.datapoints[i][k].value - this.settings.displaceYOriginTo > mx) mx = this.settings.datapoints[i][k].value;
+            }
+        }
+    //} else {
+    //	for(var i = 0, z = this.settings.datapoints.length; i < z; i++) {
+    //		if (this.settings.datapoints[i].value - this.settings.displaceYOriginTo > mx) mx = this.settings.datapoints[i].value;
+    //	}
+    //}
 	this._maxValue = mx + this.settings.maxValueGap;
 	return mx + this.settings.maxValueGap;
 };
 IdeosChart.prototype.getMinValue = function () {
 	var mn = 0;
-	for(var i = 0, z = this.settings.datapoints.length; i < z; i++) {
-		if (this.settings.datapoints[i].value < mn) mn = this.settings.datapoints[i].value;
-	}
+    //if (this.settings.multiSeries) {
+        for(var i = 0, z = this.settings.datapoints.length; i < z; i++) {
+            for (var k = 0, kk = this.settings.datapoints[i].length; k < kk; k++) {
+                if (this.settings.datapoints[i][k].value < mn) mn = this.settings.datapoints[i][k].value;
+            }
+        }
+    //} else {
+    //	for(var i = 0, z = this.settings.datapoints.length; i < z; i++) {
+    //		if (this.settings.datapoints[i].value < mn) mn = this.settings.datapoints[i].value;
+    //	}
+    //}
 	this._minValue = mn;
 	return mn;
 };
@@ -83,7 +99,11 @@ IdeosChart.prototype.getChartAreaHeight = function () {
 		return this._chartAreaHeight;
 };
 IdeosChart.prototype.getDistanceBetweenPoints = function () {
-	this._distanceBetweenPoints = this._chartAreaWidth / this.settings.datapoints.length;
+	//if (this.settings.multiSeries) {
+        this._distanceBetweenPoints = this._chartAreaWidth / this.settings.datapoints[0].length;
+	//} else {
+    //    this._distanceBetweenPoints = this._chartAreaWidth / this.settings.datapoints.length;
+	//}
 	return this._distanceBetweenPoints;
 };
 
@@ -96,12 +116,21 @@ IdeosChart.prototype.getValueFactor = function () {
 };
 
 IdeosChart.prototype.drawLabels = function (c) {    // c = a canvas 2d context
-    for (var i = 0, z = this.settings.datapoints.length; i < z; i++) {
-        var dp = this.settings.datapoints[i];
-		c.fillText(this.settings.datapoints[i].label, 
-			dp.xCenter, 
-			this.settings.height - this.settings.marginBottom + 15);
-	}
+    //if (this.settings.multiSeries) {
+        for (var i = 0, z = this.settings.datapoints[0].length; i < z; i++) {
+            var dp = this.settings.datapoints[0][i];
+            c.fillText(dp.label, 
+                dp.xCenter, 
+                this.settings.height - this.settings.marginBottom + 15);
+        }
+    //} else {
+    //    for (var i = 0, z = this.settings.datapoints.length; i < z; i++) {
+    //        var dp = this.settings.datapoints[i];
+    //        c.fillText(dp.label, 
+    //            dp.xCenter, 
+    //            this.settings.height - this.settings.marginBottom + 15);
+    //    }
+    //}
 };
 
 IdeosChart.prototype.drawAxisLines = function (c) { // c = a canvas 2d context
@@ -246,17 +275,33 @@ IdeosChart.prototype.preRender = function (container) {
 	
 	console.log('yaxis limits:', this._minValue, this._maxValue, this._valueFactor);
 	
-	for ( var i = 0, z = this.settings.datapoints.length; i < z; i++) {
-		var dp = this.settings.datapoints[i];
-		dp.xCenter = this._distanceBetweenPoints * i + this.settings.marginLeft + this._distanceBetweenPoints/2;
-		dp.yCenter = this._chartAreaHeight - (dp.value - this.settings.displaceYOriginTo) * this._valueFactor + this.settings.marginTop;
-		dp.hotArea = {};
-		dp.hotArea.x1 = this.settings.marginLeft + this._distanceBetweenPoints * i;
-		dp.hotArea.y1 = this.settings.marginTop  + 0;
-		dp.hotArea.x2 = dp.hotArea.x1 + this._distanceBetweenPoints;
-		dp.hotArea.y2 = this.height - this.settings.marginBottom;
-		//console.log(dp.label, dp.hotArea.x1, dp.hotArea.x2);
-	}
+    //if (this.settings.multiSeries) {
+        for ( var i = 0, z = this.settings.datapoints.length; i < z; i++) {
+            for (var k = 0, kk = this.settings.datapoints[i].length; k < kk; k++) {
+                var dp = this.settings.datapoints[i][k];
+                dp.xCenter = this._distanceBetweenPoints * k + this.settings.marginLeft + this._distanceBetweenPoints/2;
+                dp.yCenter = this._chartAreaHeight - (dp.value - this.settings.displaceYOriginTo) * this._valueFactor + this.settings.marginTop;
+                dp.hotArea = {};
+                dp.hotArea.x1 = this.settings.marginLeft + this._distanceBetweenPoints * k;
+                dp.hotArea.y1 = this.settings.marginTop  + 0;
+                dp.hotArea.x2 = dp.hotArea.x1 + this._distanceBetweenPoints;
+                dp.hotArea.y2 = this.height - this.settings.marginBottom;
+                //console.log(dp.label, dp.hotArea.x1, dp.hotArea.x2);
+            }
+        }
+    //} else {
+	//    for ( var i = 0, z = this.settings.datapoints.length; i < z; i++) {
+    //        var dp = this.settings.datapoints[i];
+    //        dp.xCenter = this._distanceBetweenPoints * i + this.settings.marginLeft + this._distanceBetweenPoints/2;
+    //        dp.yCenter = this._chartAreaHeight - (dp.value - this.settings.displaceYOriginTo) * this._valueFactor + this.settings.marginTop;
+    //        dp.hotArea = {};
+	//	    dp.hotArea.x1 = this.settings.marginLeft + this._distanceBetweenPoints * i;
+    //        dp.hotArea.y1 = this.settings.marginTop  + 0;
+    //        dp.hotArea.x2 = dp.hotArea.x1 + this._distanceBetweenPoints;
+	//	    dp.hotArea.y2 = this.height - this.settings.marginBottom;
+    //        //console.log(dp.label, dp.hotArea.x1, dp.hotArea.x2);
+    //    }
+    //}
     
     return c;
 };
@@ -320,13 +365,26 @@ IdeosChart.prototype.includeTooltipLayer = function (c) {
 };
 
 IdeosChart.prototype.getDatapointAt = function (x, y) {
-	for (var i = 0, z = this.settings.datapoints.length; i < z; i++) {
-		var dp = this.settings.datapoints[i];
-		if (dp.hotArea.x1 < x && dp.hotArea.x2 > x) {
-			return dp;
-			//break;
-		}
-	}
+    //TODO: comply with multiseries...
+	//if (this.settings.multiSeries) {
+        for (var i = 0, z = this.settings.datapoints.length; i < z; i++) {
+            for (var k = 0, kk = this.settings.datapoints[i].length; k < kk; k++) {
+                var dp = this.settings.datapoints[i][k];
+                if (dp.hotArea.x1 < x && dp.hotArea.x2 > x) {
+                    return dp;
+                    //break;
+                }
+            }
+        }
+	//} else {
+    //    for (var i = 0, z = this.settings.datapoints.length; i < z; i++) {
+    //        var dp = this.settings.datapoints[i];
+    //        if (dp.hotArea.x1 < x && dp.hotArea.x2 > x) {
+    //            return dp;
+    //            //break;
+    //        }
+    //    }
+	//}
 	return null;
 };
 
@@ -378,6 +436,19 @@ IdeosChart.prototype.darkenColor = function (color, amt) {
 IdeosChart.prototype.render = function(container) {
     
 };
+
+//#region utility fxs
+
+IdeosChart.prototype.isArray = function(objct) {
+    if (objct.constructor.toString().indexOf("Array") == -1)
+        return false;
+    else
+        return true;
+};
+
+//#endregion utility fxs
+
+
 
 
 

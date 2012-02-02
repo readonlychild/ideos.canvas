@@ -8,32 +8,34 @@
 </head>
 <body>
 
-    <canvas id="barchart" width="500" height="250"></canvas>
+    <canvas id="linechart" width="500" height="250"></canvas>
     <br/>
     <span id="hover-info"></span>
     <br/>
     <span id="click-info"></span>
     <br/>
-    <canvas id="linechart" width="500" height="250"></canvas>
 
     <script type="text/javascript">
         
-        var dataPoints = [];
-        dataPoints.push({
+        var myseries = [];
+        var series1 = [];
+        var series2 = [];
+        
+        series1.push({
             label: "Jan",
             value: 20
         });
-        dataPoints.push({
+        series1.push({
             label: "Feb",
             value: 0,
             tooltip: "February",
         });
-        dataPoints.push({
+        series1.push({
             label: "Mar",
             value: 50,
             tooltip: "March",
         });
-        dataPoints.push({
+        series1.push({
             label: "Apr",
             value: 66,
             tooltip: "April",
@@ -42,33 +44,33 @@
             color: "#6b6",
             lineWidth: 5
         });
-        dataPoints.push({
+        series1.push({
             label: "May",
             value: 100,
             tooltip: "May",
             markerSize: 4,
             color:"#f72"
         });
-        dataPoints.push({
+        series1.push({
             label: "Jun",
             value: 115,
             tooltip: "June",
             markerSize: 4
         });
-        dataPoints.push({
+        series1.push({
             label: "Jul",
             value: 30,
             tooltip: "July",
             markerSize: 4,
             markerColor: "#f09"
         });
-        dataPoints.push({
+        series1.push({
             label: "Aug",
             value: 50,
             tooltip: "August",
             markerSize: 4
         });
-        dataPoints.push({
+        series1.push({
             label: "Sep",
             value: 66,
             tooltip: "September",
@@ -76,13 +78,13 @@
             color: "#6b6",
             lineWidth: 5
         });
-        dataPoints.push({
+        series1.push({
             label: "Oct",
             value: 115,
             tooltip: "October",
             markerSize: 4
         });
-        dataPoints.push({
+        series1.push({
             label: "Nov",
             value: -21,
             tooltip: "November",
@@ -91,33 +93,99 @@
             borderStrokeWidth: 2,
             color:"#569"
         });
-        dataPoints.push({
+        series1.push({
             label: "Dec",
             value: 50,
             tooltip: "December",
-            markerSize: 4
+            markerSize: 3
         });
+        
+        series2.push({
+            label: "Jan",
+            value: -10,
+            markerSize: 3
+        });
+        series2.push({
+            label: "Feb",
+            value: 2,
+            tooltip: "February",
+            markerSize: 3
+        });
+        series2.push({
+            label: "Mar",
+            value: 15,
+            tooltip: "March",
+            markerSize: 3
+        });
+        series2.push({
+            label: "Apr",
+            value: 19,
+            tooltip: "April",
+            markerSize: 3
+        });
+        series2.push({
+            label: "May",
+            value: 35,
+            tooltip: "May",
+            markerSize: 3
+        });
+        series2.push({
+            label: "Jun",
+            value: 48,
+            tooltip: "June",
+            markerSize: 3
+        });
+        series2.push({
+            label: "Jul",
+            value: 52,
+            tooltip: "July",
+            markerSize: 3
+        });
+        series2.push({
+            label: "Aug",
+            value: 66,
+            tooltip: "August",
+            markerSize: 3
+        });
+        series2.push({
+            label: "Sep",
+            value: 54,
+            tooltip: "September",
+            markerSize: 3
+        });
+        series2.push({
+            label: "Oct",
+            value: 72,
+            tooltip: "October",
+            markerSize: 3
+        });
+        series2.push({
+            label: "Nov",
+            value: 89,
+            tooltip: "November",
+            markerSize: 3
+        });
+        series2.push({
+            label: "Dec",
+            value: 101,
+            tooltip: "December",
+            markerSize: 3
+        });
+        
+        myseries.push(series1);
+        myseries.push(series2);
         
         $(document).ready(function () {
             
         });
         
         var displaceY = -30;
-        var maxgap = 14;
+        var maxgap = 40;
         
-        var mychart = new IdeosBarChart({ container: "barchart", maxValueGap: maxgap, datapoints: [dataPoints], displaceYOriginTo: displaceY });
-        mychart.settings.hover = function (datapoint) {
-            $("#hover-info").html('hovering over ' + datapoint.label + ": <b>" + datapoint.value + "</b>");
-        };
-        mychart.settings.click = function (datapoint) {
-            $("#click-info").html('last clicked on ' + datapoint.label + ": <b>" + datapoint.value + "</b>");
-        };
-        mychart.settings.chartArea.gridLines.yCount = 15;
-        mychart.settings.chartArea.gridLines.useIncrements = true;
-        mychart.settings.chartArea.gridLines.gap = 10;
-        mychart.render();
         
-        var mychart2 = new IdeosLineChart({ container: "linechart", maxValueGap: maxgap, datapoints: [dataPoints], displaceYOriginTo: displaceY });
+        
+        var mychart2 = new IdeosLineChart({ container: "linechart", maxValueGap: maxgap, datapoints: myseries, displaceYOriginTo: displaceY });
+        //mychart2.settings.multiSeries = true;
         mychart2.settings.chartArea.gridLines.useIncrements = true;
         mychart2.settings.chartArea.gridLines.gap = 10;
         mychart2.render();

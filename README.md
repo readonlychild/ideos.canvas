@@ -20,7 +20,8 @@ Here is a detailed settings object literal that can be passed in...
 	marginRight: 10,
 	marginBottom: 20,
 	marginLeft: 30,
-	datapoints: [                       // datapoint array
+	datapoints: [                       // datapoint array - array of series
+      [         //-- start series1
 		{                   
 			label: "Jan",               // minumum properties needed
 			value: 12
@@ -37,6 +38,8 @@ Here is a detailed settings object literal that can be passed in...
             lineWidth: 5                // used in linechart
 		},
 		...
+      ],        //-- end series1
+      [ ... ]   // -- series2
 	],
 	chartArea: {
 		strokeWidth: 1,                 // used for the rounded border

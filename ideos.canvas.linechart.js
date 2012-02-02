@@ -51,14 +51,26 @@ function IdeosLineChart(settings) {
 	};
 
 	this.drawSeriesLines = function (c) {
-		var prevX = 0;
-		var prevY = 0;		
-		c.moveTo(this.settings.datapoints[0].xCenter, this.settings.datapoints[0].yCenter);
-		prevX = this.settings.datapoints[0].xCenter;
-		prevY = this.settings.datapoints[0].yCenter;
+		console.log('multiSeries ', this.settings.multiSeries, this.settings.datapoints.length);
+        if (this.settings.multiSeries) {
+            for (var i = 0; i < this.settings.datapoints.length; i++) {
+                this.drawLinesFor(c, this.settings.datapoints[i]);
+            }
+        } else {
+            this.drawLinesFor(c, this.settings.datapoints);
+        }
+
+	};
+    
+    this.drawLinesFor = function (c, datapoints) {
+        var prevX = 0;
+    	var prevY = 0;		
+		c.moveTo(datapoints[0].xCenter, datapoints[0].yCenter);
+		prevX = datapoints[0].xCenter;
+		prevY = datapoints[0].yCenter;
 		
-		for (var i = 1, z = this.settings.datapoints.length; i < z; i++) {
-			var dp = this.settings.datapoints[i];
+		for (var i = 1, z = datapoints.length; i < z; i++) {
+			var dp = datapoints[i];
 			
 			c.strokeStyle = dp.color || "#000";
 			c.lineWidth = dp.lineWidth || 3;
@@ -76,27 +88,48 @@ function IdeosLineChart(settings) {
 			prevX = dp.xCenter;
 			prevY = dp.yCenter;
 		}
-		
-	};
+    };
 	
 	this.drawMarkers = function (c) {
-		for (var i = 0, z = this.settings.datapoints.length; i < z; i++) {
-			var dp = this.settings.datapoints[i];
-			c.fillStyle = dp.markerColor || "#abd";
-			c.beginPath();
-			c.arc(dp.xCenter, dp.yCenter, dp.markerSize, 0, Math.PI * 2, true);
-			c.fill();
-			if (dp.borderStrokeWidth) {
-				c.lineWidth = dp.borderStrokeWidth || 0;
-				c.strokeStyle = dp.borderStrokeColor || "#000";
-				c.stroke();
-			} else {
-                c.lineWidth = 1;
-                c.strokeStyle = "#000";
-				c.stroke();
-			}
-			c.closePath();
-		}
+        if (this.settings.multiSeries) {
+            for (var i = 0, z = this.settings.datapoints.length; i < z; i++) {
+                for (var k = 0, kk = this.settings.datapoints[i].length; k < kk; k++) {
+                    var dp = this.settings.datapoints[i][k];
+                    c.fillStyle = dp.markerColor || "#abd";
+                    c.beginPath();
+                    c.arc(dp.xCenter, dp.yCenter, dp.markerSize, 0, Math.PI * 2, true);
+                    c.fill();
+                    if (dp.borderStrokeWidth) {
+                        c.lineWidth = dp.borderStrokeWidth || 0;
+                        c.strokeStyle = dp.borderStrokeColor || "#000";
+                        c.stroke();
+                    } else {
+                        c.lineWidth = 1;
+                        c.strokeStyle = "#000";
+                        c.stroke();
+                    }
+                    c.closePath();
+                }
+            }
+        } else {
+            for (var i = 0, z = this.settings.datapoints.length; i < z; i++) {
+                var dp = this.settings.datapoints[i];
+                c.fillStyle = dp.markerColor || "#abd";
+                c.beginPath();
+                c.arc(dp.xCenter, dp.yCenter, dp.markerSize, 0, Math.PI * 2, true);
+                c.fill();
+                if (dp.borderStrokeWidth) {
+                    c.lineWidth = dp.borderStrokeWidth || 0;
+                    c.strokeStyle = dp.borderStrokeColor || "#000";
+                    c.stroke();
+                } else {
+                    c.lineWidth = 1;
+                    c.strokeStyle = "#000";
+                    c.stroke();
+                }
+                c.closePath();
+            }
+        }
 	};
 
 }

@@ -31,10 +31,17 @@ function IdeosBarChart(settings) {
 
 	};
 
-	this.drawBars = function (c) {
+    this.drawBars = function (c) {
+        for (var i = 0, z = this.settings.datapoints.length; i < z; i++) {
+            this.drawBarsFor(c, this.settings.datapoints[i]);
+        }
+    };
 
-		for (var i = 0, z = this.settings.datapoints.length; i < z; i++) {
-			var dp = this.settings.datapoints[i];
+	this.drawBarsFor = function (c, datapoints) {
+
+		for (var i = 0, z = datapoints.length; i < z; i++) {
+            
+			var dp = datapoints[i];
 			
             if (dp.value !== 0) {
                 c.strokeStyle = dp.borderStrokeColor || "#000";
@@ -81,6 +88,7 @@ function IdeosBarChart(settings) {
                 }
             }
 		}
+        
 		
 	};
 

@@ -20,26 +20,28 @@ Here is a detailed settings object literal that can be passed in...
 	marginRight: 10,
 	marginBottom: 20,
 	marginLeft: 30,
-	datapoints: [                       // datapoint array - array of series
-      [         //-- start series1
-		{                   
-			label: "Jan",               // minumum properties needed
-			value: 12
-		},
-		{                               // all used properties
-			label: "Feb",               // datapoint label in x-axis
-			value: 28,                  // datapoint value
-            tooltip: "April",           // tooltip on hotspot hover
-            markerSize: 4,              // used in linechart
-            markerColor:"#ffa",         // used in linechart
-            borderStrokeColor:"#f72",   // linechart: marker size; barchar: border size
-            borderStrokeWidth:2,        // both line and bar charts
-            color: "#070",              // line color | bar color
-            lineWidth: 5                // used in linechart
-		},
-		...
-      ],        //-- end series1
-      [ ... ]   // -- series2
+	series: [                           // series array
+      {         //-- start series1
+          name: "Series 1",     
+          datapoints: [         
+    		{                   
+    			label: "Jan",               // minimum properties needed
+    			value: 12
+    		},
+    		{                               // all used properties
+    			label: "Feb",               // datapoint label in x-axis
+    			value: 28,                  // datapoint value
+                tooltip: "April",           // tooltip on hotspot hover
+                markerSize: 4,              // used in linechart
+                markerColor:"#ffa",         // used in linechart
+                borderStrokeColor:"#f72",   // linechart: marker size; barchar: border size
+                borderStrokeWidth:2,        // both line and bar charts
+                color: "#070",              // line color | bar color
+                lineWidth: 5                // used in linechart
+    		},
+    		...
+      },        //-- end series1
+      { ... }   // -- series2
 	],
 	chartArea: {
 		strokeWidth: 1,                 // used for the rounded border

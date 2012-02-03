@@ -3,12 +3,11 @@
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="../ideos.canvas.js"></script>
     <script type="text/javascript" src="../ideos.canvas.chart.js"></script>
-    <script type="text/javascript" src="../ideos.canvas.barchart.js"></script>
     <script type="text/javascript" src="../ideos.canvas.linechart.js"></script>
 </head>
 <body>
 
-    <canvas id="linechart" width="500" height="250"></canvas>
+    <canvas id="linechart" width="700" height="400"></canvas>
     <br/>
     <span id="hover-info"></span>
     <br/>
@@ -18,8 +17,12 @@
     <script type="text/javascript">
         
         var myseries = [];
+        var s1 = { name: "Series 1" }; 
+        var s2 = { name: "Series 2" };
+        var s3 = { name: "Series 3" };
         var series1 = [];
         var series2 = [];
+        var series3 = [];
         
         series1.push({
             label: "Jan",
@@ -27,7 +30,7 @@
         });
         series1.push({
             label: "Feb",
-            value: 0,
+            value: 10,
             tooltip: "February",
         });
         series1.push({
@@ -172,8 +175,25 @@
             markerSize: 3
         });
         
-        myseries.push(series1);
-        myseries.push(series2);
+        series3.push({ label: "Jan", value: 60 });
+        series3.push({ label: "Feb", value: 62 });
+        series3.push({ label: "Mar", value: 64 });
+        series3.push({ label: "Apr", value: 66 });
+        series3.push({ label: "MAy", value: 68 });
+        series3.push({ label: "Jun", value: 70 });
+        series3.push({ label: "Jul", value: 72 });
+        series3.push({ label: "Aug", value: 74 });
+        series3.push({ label: "Sep", value: 76 });
+        series3.push({ label: "Oct", value: 78 });
+        series3.push({ label: "Nov", value: 80 });
+        series3.push({ label: "Dec", value: 82 });
+        
+        s1.datapoints = series1;
+        s2.datapoints = series2;
+        s3.datapoints = series3;
+        myseries.push(s1);
+        myseries.push(s2);
+        myseries.push(s3);
         
         $(document).ready(function () {
             
@@ -184,7 +204,7 @@
         
         
         
-        var mychart2 = new IdeosLineChart({ container: "linechart", maxValueGap: maxgap, datapoints: myseries, displaceYOriginTo: displaceY });
+        var mychart2 = new IdeosLineChart({ container: "linechart", maxValueGap: maxgap, series: myseries, displaceYOriginTo: displaceY });
         //mychart2.settings.multiSeries = true;
         mychart2.settings.chartArea.gridLines.useIncrements = true;
         mychart2.settings.chartArea.gridLines.gap = 10;

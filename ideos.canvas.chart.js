@@ -8,30 +8,27 @@ function IdeosChart(settings) {
 		marginBottom: 20,
 		marginLeft: 30,
         multiSeries: true,
-		datapoints: [
-          [    
-			{
-				label: "Jan",
-				value: 1
-			},
-			{
-				label: "Feb",
-				value: 2
-			},
-			{
-				label: "Mar",
-				value: 3
-			},
-			{ label: "Apr", value: 4 },
-			{ label: "May", value: 5 },
-			{ label: "Jun", value: 6 },
-            { label: "Jul", value: 7 },
-            { label: "Aug", value: 8 },
-            { label: "Sep", value: 9 },
-            { label: "Oct", value: 10 },
-            { label: "Nov", value: 11 },
-            { label: "Dec", value: 12 }
-          ]
+		series: [
+          {    
+              name: "Series 1",
+              datapoints: [
+    			{
+    				label: "Jan",
+    				value: 1
+    			},
+    			{ label: "Feb", value: 2 },
+    			{ label: "Mar", value: 3 },
+    			{ label: "Apr", value: 4 },
+    			{ label: "May", value: 5 },
+    			{ label: "Jun", value: 6 },
+                { label: "Jul", value: 7 },
+                { label: "Aug", value: 8 },
+                { label: "Sep", value: 9 },
+                { label: "Oct", value: 10 },
+                { label: "Nov", value: 11 },
+                { label: "Dec", value: 12 }
+              ]
+          }
 		],
 		chartArea: {
 			strokeWidth: 1,
@@ -61,21 +58,21 @@ function IdeosChart(settings) {
 IdeosChart.prototype.getMaxValue = function () {
 	var mx = -99999;
 
-        for(var i = 0, z = this.settings.datapoints.length; i < z; i++) {
-            for (var k = 0, kk = this.settings.datapoints[i].length; k < kk; k++) {
-                if (this.settings.datapoints[i][k].value - this.settings.displaceYOriginTo > mx) mx = this.settings.datapoints[i][k].value;
+        for(var i = 0, z = this.settings.series.length; i < z; i++) {
+            for (var k = 0, kk = this.settings.series[i].datapoints.length; k < kk; k++) {
+                if (this.settings.series[i].datapoints[k].value - this.settings.displaceYOriginTo > mx) mx = this.settings.series[i].datapoints[k].value;
             }
         }
 
-	this._maxValue = mx + this.settings.maxValueGap;
+	this._maxValue = mx + this.settings.maxValueGap; // + this.settings.displaceYOriginTo;
 	return mx + this.settings.maxValueGap;
 };
 IdeosChart.prototype.getMinValue = function () {
 	var mn = 0;
 
-        for(var i = 0, z = this.settings.datapoints.length; i < z; i++) {
-            for (var k = 0, kk = this.settings.datapoints[i].length; k < kk; k++) {
-                if (this.settings.datapoints[i][k].value < mn) mn = this.settings.datapoints[i][k].value;
+        for(var i = 0, z = this.settings.series.length; i < z; i++) {
+            for (var k = 0, kk = this.settings.series[i].datapoints.length; k < kk; k++) {
+                if (this.settings.series[i].datapoints[k].value < mn) mn = this.settings.series[i].datapoints[k].value;
             }
         }
 
@@ -87,13 +84,12 @@ IdeosChart.prototype.getChartAreaWidth = function () {
 	return this._chartAreaWidth;
 };
 IdeosChart.prototype.getChartAreaHeight = function () {
-		this._chartAreaHeight = this.settings.height - this.settings.marginTop - this.settings.marginBottom;
-		return this._chartAreaHeight;
+	this._chartAreaHeight = this.settings.height - this.settings.marginTop - this.settings.marginBottom;
+	return this._chartAreaHeight;
 };
 IdeosChart.prototype.getDistanceBetweenPoints = function () {
 
-        this._distanceBetweenPoints = this._chartAreaWidth / this.settings.datapoints[0].length;
-
+    this._distanceBetweenPoints = this._chartAreaWidth / this.settings.series[0].datapoints.length;
 	return this._distanceBetweenPoints;
 };
 
@@ -106,14 +102,12 @@ IdeosChart.prototype.getValueFactor = function () {
 };
 
 IdeosChart.prototype.drawLabels = function (c) {    // c = a canvas 2d context
-
-        for (var i = 0, z = this.settings.datapoints[0].length; i < z; i++) {
-            var dp = this.settings.datapoints[0][i];
+        for (var i = 0, z = this.settings.series[0].length; i < z; i++) {
+            var dp = this.settings.series[0].datapoints[i];
             c.fillText(dp.label, 
                 dp.xCenter, 
                 this.settings.height - this.settings.marginBottom + 15);
         }
-
 };
 
 IdeosChart.prototype.drawAxisLines = function (c) { // c = a canvas 2d context
@@ -258,9 +252,10 @@ IdeosChart.prototype.preRender = function (container) {
 	
 	console.log('yaxis limits:', this._minValue, this._maxValue, this._valueFactor);
 
-        for ( var i = 0, z = this.settings.datapoints.length; i < z; i++) {
-            for (var k = 0, kk = this.settings.datapoints[i].length; k < kk; k++) {
-                var dp = this.settings.datapoints[i][k];
+        for ( var i = 0, z = this.settings.series.length; i < z; i++) {
+            //TODO: consider other series to calc hotspot region boundaries...
+            for (var k = 0, kk = this.settings.series[i].datapoints.length; k < kk; k++) {
+                var dp = this.settings.series[i].datapoints[k];
                 dp.xCenter = this._distanceBetweenPoints * k + this.settings.marginLeft + this._distanceBetweenPoints/2;
                 dp.yCenter = this._chartAreaHeight - (dp.value - this.settings.displaceYOriginTo) * this._valueFactor + this.settings.marginTop;
                 dp.hotArea = {};
@@ -268,6 +263,7 @@ IdeosChart.prototype.preRender = function (container) {
                 dp.hotArea.y1 = this.settings.marginTop  + 0;
                 dp.hotArea.x2 = dp.hotArea.x1 + this._distanceBetweenPoints;
                 dp.hotArea.y2 = this.height - this.settings.marginBottom;
+                dp.seriesName = dp.seriesName || this.settings.series[i].name;
                 //console.log(dp.label, dp.hotArea.x1, dp.hotArea.x2);
             }
         }
@@ -305,6 +301,7 @@ IdeosChart.prototype.includeTooltipLayer = function (c) {
 			if (ypos < 0) ypos = 4;
 			var v = dp.value.toString();
 			if (dp.tooltip) v = dp.tooltip + " " + v;
+            v = dp.seriesName + " " + v;
 			var vw = e.data.context.measureText(v).width;
 			xoffset = vw/2 * -1;
 			if (ux + xoffset + vw + xpadd >= this.width) xoffset = this.width - ux - vw - xpadd - 4;
@@ -334,19 +331,26 @@ IdeosChart.prototype.includeTooltipLayer = function (c) {
 };
 
 IdeosChart.prototype.getDatapointAt = function (x, y) {
-    //TODO: comply with multiseries...
-
-        for (var i = 0, z = this.settings.datapoints.length; i < z; i++) {
-            for (var k = 0, kk = this.settings.datapoints[i].length; k < kk; k++) {
-                var dp = this.settings.datapoints[i][k];
-                if (dp.hotArea.x1 < x && dp.hotArea.x2 > x) {
-                    return dp;
-                    //break;
+    //TODO[done]: comply with multiseries...
+    //TODO: may need to be re-thought for bars...
+    var nearestPoint = null;
+    for (var i = 0, z = this.settings.series.length; i < z; i++) {
+        for (var k = 0, kk = this.settings.series[i].datapoints.length; k < kk; k++) {
+            var dp = this.settings.series[i].datapoints[k];
+            if (dp.hotArea.x1 < x && dp.hotArea.x2 > x) {
+                // compare dp from this series to previous series nearest...
+                if (nearestPoint !== null) {
+                    var nearestYDiff = Math.abs(nearestPoint.yCenter - y);
+                    var thisYDiff = Math.abs(dp.yCenter - y);
+                    if (thisYDiff < nearestYDiff) nearestPoint = dp;
+                } else { 
+                    nearestPoint = dp;
                 }
+                break;
             }
         }
-
-	return null;
+    }
+	return nearestPoint;
 };
 
 IdeosChart.prototype.lightenDarkenColor = function (clr, amt) {
@@ -407,6 +411,15 @@ IdeosChart.prototype.isArray = function(objct) {
         return false;
     else
         return true;
+};
+
+IdeosChart.prototype.nextColor = function () {
+    if (!this.currentColorIdx) this.currentColorIdx = 0;
+    if (!this.settings.seriesColorArray) this.settings.seriesColorArray = ['#78a','#d84','#7b7','#ccf','#ffb','#eaa','#eae'];
+    var clr = this.settings.seriesColorArray[this.currentColorIdx];
+    this.currentColorIdx += 1;
+    if (this.currentColorIdx > this.settings.seriesColorArray.length - 1) this.currentColorIdx = 0;
+    return clr;
 };
 
 //#endregion -- utility fxs

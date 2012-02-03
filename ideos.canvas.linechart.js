@@ -30,17 +30,17 @@ function IdeosLineChart(settings) {
 		this.drawMarkers(c);
 		
         this.settings.hotSpotHover = function (dp, ctx) {
-            ctx.fillStyle = dp.markerColor || "#abd";
+            ctx.fillStyle = dp.markerColor || "#fff";
             ctx.beginPath();
             ctx.arc(dp.xCenter, dp.yCenter, dp.markerSize + 4, 0, Math.PI * 2, true);
             ctx.fill();
             if (dp.markerStrokeWidth) {
                 ctx.lineWidth = dp.markerStrokeWidth || 0;
-                ctx.strokeStyle = dp.markerStrokeColor || "#000";
+                ctx.strokeStyle = dp.markerStrokeColor || "#777";
                 ctx.stroke();
 		    } else {
-                ctx.lineWidth = 1;
-                ctx.strokeStyle = "#000";
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#777";
 		        ctx.stroke();
 		    }
 		    ctx.closePath();
@@ -51,15 +51,11 @@ function IdeosLineChart(settings) {
 	};
 
 	this.drawSeriesLines = function (c) {
-		console.log('multiSeries ', this.settings.multiSeries, this.settings.datapoints.length);
-        if (this.settings.multiSeries) {
-            for (var i = 0; i < this.settings.datapoints.length; i++) {
-                this.drawLinesFor(c, this.settings.datapoints[i]);
+		//console.log('multiSeries ', this.settings.multiSeries, this.settings.series.length);
+        this.currentColorIdx = 0;
+            for (var i = 0; i < this.settings.series.length; i++) {
+                this.drawLinesFor(c, this.settings.series[i].datapoints);
             }
-        } else {
-            this.drawLinesFor(c, this.settings.datapoints);
-        }
-
 	};
     
     this.drawLinesFor = function (c, datapoints) {
@@ -68,11 +64,12 @@ function IdeosLineChart(settings) {
 		c.moveTo(datapoints[0].xCenter, datapoints[0].yCenter);
 		prevX = datapoints[0].xCenter;
 		prevY = datapoints[0].yCenter;
-		
+		var seriesColor = this.nextColor();
+        
 		for (var i = 1, z = datapoints.length; i < z; i++) {
 			var dp = datapoints[i];
 			
-			c.strokeStyle = dp.color || "#000";
+			c.strokeStyle = dp.color || seriesColor;
 			c.lineWidth = dp.lineWidth || 3;
 			c.shadowColor = "rgba(0,0,0,.5)";
 			c.shadowBlur = 10;
@@ -91,45 +88,30 @@ function IdeosLineChart(settings) {
     };
 	
 	this.drawMarkers = function (c) {
-        if (this.settings.multiSeries) {
-            for (var i = 0, z = this.settings.datapoints.length; i < z; i++) {
-                for (var k = 0, kk = this.settings.datapoints[i].length; k < kk; k++) {
-                    var dp = this.settings.datapoints[i][k];
-                    c.fillStyle = dp.markerColor || "#abd";
+            this.currentColorIdx = 0;
+            for (var i = 0, z = this.settings.series.length; i < z; i++) {
+                var seriesColor = this.nextColor();
+                for (var k = 0, kk = this.settings.series[i].datapoints.length; k < kk; k++) {
+                    var dp = this.settings.series[i].datapoints[k];
+                    c.fillStyle = dp.markerColor || "#fff";
+                    dp.markerSize = dp.markerSize || 3;
                     c.beginPath();
                     c.arc(dp.xCenter, dp.yCenter, dp.markerSize, 0, Math.PI * 2, true);
                     c.fill();
+                    dp.borderStrokeWidth = dp.borderStrokeWidth || 2;
                     if (dp.borderStrokeWidth) {
                         c.lineWidth = dp.borderStrokeWidth || 0;
-                        c.strokeStyle = dp.borderStrokeColor || "#000";
+                        c.strokeStyle = dp.borderStrokeColor || seriesColor;
                         c.stroke();
                     } else {
-                        c.lineWidth = 1;
-                        c.strokeStyle = "#000";
+                        c.lineWidth = 2;
+                        c.strokeStyle = seriesColor;
                         c.stroke();
                     }
                     c.closePath();
                 }
             }
-        } else {
-            for (var i = 0, z = this.settings.datapoints.length; i < z; i++) {
-                var dp = this.settings.datapoints[i];
-                c.fillStyle = dp.markerColor || "#abd";
-                c.beginPath();
-                c.arc(dp.xCenter, dp.yCenter, dp.markerSize, 0, Math.PI * 2, true);
-                c.fill();
-                if (dp.borderStrokeWidth) {
-                    c.lineWidth = dp.borderStrokeWidth || 0;
-                    c.strokeStyle = dp.borderStrokeColor || "#000";
-                    c.stroke();
-                } else {
-                    c.lineWidth = 1;
-                    c.strokeStyle = "#000";
-                    c.stroke();
-                }
-                c.closePath();
-            }
-        }
+
 	};
 
 }

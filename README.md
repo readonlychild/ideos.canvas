@@ -8,6 +8,10 @@ var mychart = new IdeosLineChart(mysettings);
 
 var mychart = new IdeosBarChart(mysettings);
 
+### IdeosStackedBarChart
+
+var mychart = new IdeosStackedBarChart(mysettings);
+
 mychart.render();
 
 Here is a detailed settings object literal that can be passed in...

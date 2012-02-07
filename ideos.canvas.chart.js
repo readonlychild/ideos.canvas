@@ -56,6 +56,12 @@ function IdeosChart(settings) {
 }
 
 IdeosChart.prototype.getMaxValue = function () {
+    if (this.settings.stackedSeries) {
+        return this.getMaxValueStacked();
+    } 
+    return this.getMaxValueNotStacked();
+};
+IdeosChart.prototype.getMaxValueNotStacked = function () {
 	var mx = -99999;
 
         for(var i = 0, z = this.settings.series.length; i < z; i++) {
@@ -67,7 +73,25 @@ IdeosChart.prototype.getMaxValue = function () {
 	this._maxValue = mx + this.settings.maxValueGap; // + this.settings.displaceYOriginTo;
 	return mx + this.settings.maxValueGap;
 };
+IdeosChart.prototype.getMaxValueStacked = function () {
+    var mx = -99999;
+    for (var i = 0, z = this.settings.series[0].datapoints.length; i < z; i++) {
+        var stackVal = 0;
+        for (var j = 0; j < this.settings.series.length; j++) {
+            stackVal += this.settings.series[j].datapoints[i].value;
+        }
+        if (stackVal - this.settings.displaceYOriginTo > mx) mx = stackVal;
+    }
+    this._maxValue = mx + this.settings.maxValueGap;
+    return mx + this.settings.maxValueGap;
+};
 IdeosChart.prototype.getMinValue = function () {
+    if (this.settings.stackedSeries) {
+        return this.getMinValueStacked();
+    }
+    return this.getMinValueNotStacked();
+};
+IdeosChart.prototype.getMinValueNotStacked = function () {
 	var mn = 0;
 
         for(var i = 0, z = this.settings.series.length; i < z; i++) {
@@ -78,6 +102,18 @@ IdeosChart.prototype.getMinValue = function () {
 
 	this._minValue = mn;
 	return mn;
+};
+IdeosChart.prototype.getMinValueStacked = function () {
+    var mn = 0;
+    for (var i = 0, z = this.settings.series[0].datapoints.length; i < z; i++) {
+        var stackVal = 0;
+        for (var j = 0; j < this.settings.series.length; j++) {
+            stackVal += this.settings.series[j].datapoints[i].value;
+        }
+        if (stackVal < mn) mn = stackVal;
+    }
+    this._minValue = mn;
+    return mn;
 };
 IdeosChart.prototype.getChartAreaWidth = function () {
 	this._chartAreaWidth = this.settings.width - this.settings.marginLeft - this.settings.marginRight;
@@ -102,7 +138,7 @@ IdeosChart.prototype.getValueFactor = function () {
 };
 
 IdeosChart.prototype.drawLabels = function (c) {    // c = a canvas 2d context
-        for (var i = 0, z = this.settings.series[0].length; i < z; i++) {
+        for (var i = 0, z = this.settings.series[0].datapoints.length; i < z; i++) {
             var dp = this.settings.series[0].datapoints[i];
             c.fillText(dp.label, 
                 dp.xCenter, 
@@ -251,9 +287,8 @@ IdeosChart.prototype.preRender = function (container) {
 	this.getValueFactor();
 	
 	console.log('yaxis limits:', this._minValue, this._maxValue, this._valueFactor);
-
+    //this hotspot logic works best for multiseries linechart
         for ( var i = 0, z = this.settings.series.length; i < z; i++) {
-            //TODO: consider other series to calc hotspot region boundaries...
             for (var k = 0, kk = this.settings.series[i].datapoints.length; k < kk; k++) {
                 var dp = this.settings.series[i].datapoints[k];
                 dp.xCenter = this._distanceBetweenPoints * k + this.settings.marginLeft + this._distanceBetweenPoints/2;
@@ -265,6 +300,20 @@ IdeosChart.prototype.preRender = function (container) {
                 dp.hotArea.y2 = this.height - this.settings.marginBottom;
                 dp.seriesName = dp.seriesName || this.settings.series[i].name;
                 //console.log(dp.label, dp.hotArea.x1, dp.hotArea.x2);
+            }
+        }
+        if (this.settings.stackedSeries) {
+            for (var i = 0, z = this.settings.series[0].datapoints.length; i < z; i++) {
+                var stackedVal = 0;
+                for (var j = 0; j < this.settings.series.length; j++) {
+                    var dp = this.settings.series[j].datapoints[i];
+                    dp.yCenterStacked = stackedVal * this._valueFactor;
+                    dp.hotArea.sx1 = this.settings.marginLeft + this._distanceBetweenPoints * j;
+                    dp.hotArea.sy1 = this.settings.marginTop + this._chartAreaHeight - stackedVal/this._valueFactor;
+                    dp.hotArea.sx2 = dp.hotArea.x1 + this._distanceBetweenPoints;
+                    dp.hotArea.sy2 = this.settings.marginTop + this._chartAreaHeight - stackedVal + dp.value/this._valueFactor;
+                    stackedVal += dp.value;
+                }
             }
         }
     
@@ -292,27 +341,64 @@ IdeosChart.prototype.includeTooltipLayer = function (c) {
             }
             
 			//console.log(dp.label);
-            e.data.context.strokeStyle = "rgba(0,0,0,.5)";
+            e.data.context.globalAlpha = 0.67;
+            e.data.context.strokeStyle = "#000";
             e.data.context.fillStyle = "rgba(222,222,222,.5)";
+            e.data.context.fillStyle = dp.color;
 			var xoffset = -10;
-			var yoffset = -40;
+			var yoffset = -70;
 			var xpadd = 12;
 			var ypos = uy + yoffset;
 			if (ypos < 0) ypos = 4;
-			var v = dp.value.toString();
-			if (dp.tooltip) v = dp.tooltip + " " + v;
-            v = dp.seriesName + " " + v;
-			var vw = e.data.context.measureText(v).width;
-			xoffset = vw/2 * -1;
-			if (ux + xoffset + vw + xpadd >= this.width) xoffset = this.width - ux - vw - xpadd - 4;
+			//var v = dp.value.toString();
+			//if (dp.tooltip) v = dp.tooltip + " " + v;
+            //v = dp.seriesName + " " + v;
+			//var vw = e.data.context.measureText(v).width;
+			//xoffset = vw/2 * -1;
+			//if (ux + xoffset + vw + xpadd >= this.width) xoffset = this.width - ux - vw - xpadd - 4;
 			//console.log(xoffset);
-			e.data.context.roundRect(ux + xoffset, ypos, vw + xpadd, 21, 4, true, true);
-			e.data.context.fillStyle = "#000";
+            
+            var lineHeight = 12;
+            
+            var ttipHeight = 21;
+            var ttipWidth = 40;
+            if (dp.seriesName) {
+                ttipHeight += lineHeight;
+                var snw = e.data.context.measureText(dp.seriesName).width;
+                if (snw > ttipWidth) ttipWidth = snw;
+            }
+            if (dp.tooltip) {
+                ttipHeight += lineHeight;
+                var lblw = e.data.context.measureText(dp.tooltip).width;
+                if (lblw > ttipWidth) ttipWidth = lblw;
+            }
+            xoffset = ttipWidth/2 * -1;
+            if (ux + xoffset + ttipWidth + xpadd >= this.width) xoffset = this.width - ux - ttipWidth - xpadd - 4;
+            
+			e.data.context.roundRect(ux + xoffset, ypos, ttipWidth + xpadd, ttipHeight, 4, true, true);
+			
+            e.data.context.globalAlpha = 1.0;
+            
+            e.data.context.fillStyle = "#000";
 			e.data.context.textAlign = "center";
-			e.data.context.fillText(v, ux + xoffset + vw/2 + xpadd/2, ypos + 13);
+            
+            e.data.context.font = "10px arial";
+            var yshift = 13;
+            if (dp.seriesName) {
+                e.data.context.fillText(dp.seriesName, ux + xoffset + ttipWidth/2 + xpadd/2, ypos + yshift);
+                yshift += lineHeight;
+            }
+            if (dp.tooltip) {
+                e.data.context.fillText(dp.tooltip, ux + xoffset + ttipWidth/2 + xpadd/2, ypos + yshift);
+                yshift += lineHeight;
+            }
+            
+            e.data.context.fillText(dp.value, ux + xoffset + ttipWidth/2 + xpadd/2, ypos + yshift);
+                
 			if (e.data.chart.settings.hover) {
                 e.data.chart.settings.hover(dp);
 			}
+            
 		}
 	});
     
@@ -340,9 +426,16 @@ IdeosChart.prototype.getDatapointAt = function (x, y) {
             if (dp.hotArea.x1 < x && dp.hotArea.x2 > x) {
                 // compare dp from this series to previous series nearest...
                 if (nearestPoint !== null) {
-                    var nearestYDiff = Math.abs(nearestPoint.yCenter - y);
-                    var thisYDiff = Math.abs(dp.yCenter - y);
-                    if (thisYDiff < nearestYDiff) nearestPoint = dp;
+                    if (this.settings.stackedSeries) {
+                        if (dp.hotArea.y1 < y && dp.hotArea.y2 > y) {
+                            //console.log(dp.hotArea.y1, y, dp.hotArea.y2);
+                            nearestPoint = dp;
+                        }
+                    } else {
+                        var nearestYDiff = Math.abs(nearestPoint.yCenter - y);
+                        var thisYDiff = Math.abs(dp.yCenter - y);
+                        if (thisYDiff < nearestYDiff) nearestPoint = dp;
+                    }
                 } else { 
                     nearestPoint = dp;
                 }

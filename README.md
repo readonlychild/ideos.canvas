@@ -1,10 +1,10 @@
 # IdeosChart object (base class, does not render)
 
-## IdeosLineChart
+### IdeosLineChart
 
 var mychart = new IdeosLineChart(mysettings);
 
-## IdeosBarChart
+### IdeosBarChart
 
 var mychart = new IdeosBarChart(mysettings);
 

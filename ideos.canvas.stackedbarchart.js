@@ -1,6 +1,6 @@
-IdeosBarChart.prototype = new IdeosChart();
+IdeosStackedBarChart.prototype = new IdeosChart();
 
-function IdeosBarChart(settings) {
+function IdeosStackedBarChart(settings) {
 
     IdeosChart.apply( this, arguments );
 
@@ -40,22 +40,21 @@ function IdeosBarChart(settings) {
 
 	this.drawBarsFor = function (c, datapoints, idx) {
         var seriesColor = this.nextColor();
-        var barWidth = this._distanceBetweenPoints / this.settings.series.length;
+        var barWidth = this._distanceBetweenPoints;
+        
         barWidth *= 0.75;
         
-        var compensateLeftSide = barWidth/2;
+        var compensateLeftSide = 0; //barWidth/2;
         
         //override hotArea values...
-        
-            for (var k = 0, kk = datapoints.length; k < kk; k++) {
-                var dp = datapoints[k];
-                dp.hotArea = {};
-                dp.hotArea.x1 = dp.xCenter - this._distanceBetweenPoints/2 + (idx * barWidth) + compensateLeftSide;
-                dp.hotArea.y1 = this.settings.marginTop  + 0;
-                dp.hotArea.x2 = dp.hotArea.x1 + barWidth;
-                dp.hotArea.y2 = this.height - this.settings.marginBottom;
-                //dp.seriesName = dp.seriesName || this.settings.series[i].name;
-            }
+        for (var k = 0, kk = datapoints.length; k < kk; k++) {
+            var dp = datapoints[k];
+            dp.hotArea = {};
+            dp.hotArea.x1 = dp.hotArea.sx1;
+            dp.hotArea.y1 = dp.hotArea.sy1;
+            dp.hotArea.x2 = dp.hotArea.sx2;
+            dp.hotArea.y2 = dp.hotArea.sy2;
+        }
         
 		for (var i = 0, z = datapoints.length; i < z; i++) {
             
@@ -65,24 +64,22 @@ function IdeosBarChart(settings) {
                 c.strokeStyle = dp.borderStrokeColor || "#000";
                 c.lineWidth = dp.borderStrokeWidth || 0;
 	            c.shadowColor = "rgba(0,0,0,.5)";
-			    c.shadowBlur = 10;
-			    c.shadowOffsetX = 4;
-                c.shadowOffsetY = 4;
+			    c.shadowBlur = 0;
+			    c.shadowOffsetX = 0;
+                c.shadowOffsetY = 0;
 
                 c.fillStyle = dp.color || seriesColor;
                 
-                //side-by-side (not-stacked) bar...
-                var thisSeriesBar = {};
-                thisSeriesBar.x1 = dp.xCenter - this._distanceBetweenPoints/2 + (idx * barWidth) + compensateLeftSide;
-                
                 //gradienting...
                 var lgrad = c.createLinearGradient(
-                    thisSeriesBar.x1, 
+                    dp.xCenter - barWidth/2 + compensateLeftSide,
                     0,
-                    thisSeriesBar.x1 + barWidth, 
+                    dp.xCenter + barWidth/2 - compensateLeftSide,
                     0
                 );
+                
                 var dpclr = dp.color || seriesColor;
+                dp.color = dp.color || seriesColor;
                 lgrad.addColorStop(1, this.lightenColor(dpclr, 33));
                 lgrad.addColorStop(0.51, dpclr);
                 lgrad.addColorStop(0.5, this.darkenColor(dpclr, 22));
@@ -90,22 +87,31 @@ function IdeosBarChart(settings) {
                 c.fillStyle = lgrad;
             
                 c.fillRect(
-                    thisSeriesBar.x1, 
-                    this.settings.height - this.settings.marginBottom + this.settings.displaceYOriginTo * this._valueFactor, 
-                    barWidth, 
+                    dp.xCenter - barWidth/2 + compensateLeftSide,
+                    this.settings.height - this.settings.marginBottom + this.settings.displaceYOriginTo * this._valueFactor - dp.yCenterStacked, 
+                    barWidth,
                     (this.settings.height - this.settings.marginBottom - dp.yCenter) * -1 - this.settings.displaceYOriginTo * this._valueFactor 
                 );
+                
+                dp.hotArea = {};
+                dp.hotArea.x1 = dp.xCenter - barWidth/2 + compensateLeftSide;
+                dp.hotArea.y1 = this.settings.height - this.settings.marginBottom + this.settings.displaceYOriginTo * this._valueFactor - dp.yCenterStacked +
+                    (this.settings.height - this.settings.marginBottom - dp.yCenter) * -1 - this.settings.displaceYOriginTo * this._valueFactor;
+                dp.hotArea.x2 = dp.xCenter - barWidth/2 + compensateLeftSide + barWidth;
+                dp.hotArea.y2 = this.settings.height - this.settings.marginBottom + this.settings.displaceYOriginTo * this._valueFactor - dp.yCenterStacked;
+                
                 if (dp.borderStrokeColor) {
                     c.shadowBlur = 0;
                     c.shadowOffsetX = 0;
 			        c.shadowOffsetY = 0;
                     c.strokeRect(
-                        thisSeriesBar.x1, 
+                        dp.xCenter - barWidth/2 + compensateLeftSide,
                         this.settings.height - this.settings.marginBottom + this.settings.displaceYOriginTo * this._valueFactor,
                         barWidth,
                         (this.settings.height - this.settings.marginBottom - dp.yCenter) * -1 - this.settings.displaceYOriginTo * this._valueFactor
                     );
                 }
+                
             }
 		}
         

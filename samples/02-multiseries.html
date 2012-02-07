@@ -4,15 +4,20 @@
     <script type="text/javascript" src="../ideos.canvas.js"></script>
     <script type="text/javascript" src="../ideos.canvas.chart.js"></script>
     <script type="text/javascript" src="../ideos.canvas.linechart.js"></script>
+    <script type="text/javascript" src="../ideos.canvas.barchart.js"></script>
+    <script type="text/javascript" src="../ideos.canvas.stackedbarchart.js"></script>
 </head>
 <body>
 
-    <canvas id="linechart" width="700" height="400"></canvas>
+    <canvas id="linechart" width="700" height="200"></canvas>
     <br/>
     <span id="hover-info"></span>
     <br/>
     <span id="click-info"></span>
     <br/>
+    
+    <canvas id="barchart" width="700" height="300"></canvas>
+    <canvas id="barchart-stacked" width="700" height="300"></canvas>
 
     <script type="text/javascript">
         
@@ -42,17 +47,13 @@
             label: "Apr",
             value: 66,
             tooltip: "April",
-            borderStrokeColor:"#f72",
-            borderStrokeWidth:2,
-            color: "#6b6",
             lineWidth: 5
         });
         series1.push({
             label: "May",
             value: 100,
             tooltip: "May",
-            markerSize: 4,
-            color:"#f72"
+            markerSize: 4
         });
         series1.push({
             label: "Jun",
@@ -78,7 +79,6 @@
             value: 66,
             tooltip: "September",
             markerSize: 4,
-            color: "#6b6",
             lineWidth: 5
         });
         series1.push({
@@ -91,10 +91,7 @@
             label: "Nov",
             value: -21,
             tooltip: "November",
-            markerSize: 7,
-            borderStrokeColor:"#ff4",
-            borderStrokeWidth: 2,
-            color:"#569"
+            markerSize: 7
         });
         series1.push({
             label: "Dec",
@@ -209,6 +206,17 @@
         mychart2.settings.chartArea.gridLines.useIncrements = true;
         mychart2.settings.chartArea.gridLines.gap = 10;
         mychart2.render();
+        
+        var mychart = new IdeosBarChart({ container: "barchart", maxValueGap: maxgap, series: myseries, displaceYOriginTo: displaceY });
+        mychart.settings.chartArea.gridLines.useIncrements = true;
+        mychart.settings.chartArea.gridLines.gap = 10;
+        mychart.render();
+        
+        var mychart3 = new IdeosStackedBarChart({ container: "barchart-stacked", maxValueGap: maxgap, series: myseries, displaceYOriginTo: displaceY });
+        mychart3.settings.chartArea.gridLines.useIncrements = true;
+        mychart3.settings.chartArea.gridLines.gap = 10;
+        mychart3.settings.stackedSeries = true;
+        mychart3.render();
         
     </script>
 </body>
